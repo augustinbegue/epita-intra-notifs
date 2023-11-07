@@ -39,26 +39,77 @@
 
 function getStatus() {
     let store = localStorage.getItem("notifsstatus");
+    if (!store)
+        store = "{}";
+
     let jsonStore = JSON.parse(store);
+    let pathname = normalize(window.location.pathname);
 
     if (!jsonStore) {
         return false;
     }
 
-    return jsonStore[window.location.pathname];
+    return jsonStore[pathname];
+}
+
+function normalize(pathname) {
+    if (!pathname.endsWith("/"))
+        pathname += "/";
+
+    return pathname;
 }
 
 function setStatus(status) {
     let store = localStorage.getItem("notifsstatus");
+    if (!store)
+        store = "{}";
+
     let jsonStore = JSON.parse(store);
+    let pathname = normalize(window.location.pathname);
 
     if (!jsonStore) {
         jsonStore = {};
     }
 
-    jsonStore[window.location.pathname] = status;
+    jsonStore[pathname] = status;
 
     localStorage.setItem("notifsstatus", JSON.stringify(jsonStore));
+}
+
+function setProcessed(tagName) {
+    let store = localStorage.getItem("notifsprocessed");
+    if (!store)
+        store = "{}";
+
+    let jsonStore = JSON.parse(store);
+    let pathname = normalize(window.location.pathname);
+
+    if (!jsonStore) {
+        jsonStore = {};
+    }
+
+    if (!jsonStore[pathname]) {
+        jsonStore[pathname] = [];
+    }
+
+    jsonStore[pathname].push(tagName);
+
+    localStorage.setItem("notifsprocessed", JSON.stringify(jsonStore));
+}
+
+function isProcessed(tagName) {
+    let store = localStorage.getItem("notifsprocessed");
+    if (!store)
+        store = "{}";
+
+    let jsonStore = JSON.parse(store);
+    let pathname = normalize(window.location.pathname);
+
+    if (!jsonStore || !jsonStore[pathname]) {
+        return false;
+    }
+
+    return jsonStore[pathname].includes(tagName);
 }
 
 function watch(resume = false) {
@@ -92,24 +143,33 @@ function watch(resume = false) {
     for (let i = 0; i < tagsArr.length; i++) {
         let tag = tagsArr[i];
 
-        if (tag.attributes["href"].value.startsWith("/")) {
+        if (tag.attributes.href.value.startsWith("/") && !tag.classList.contains('list__item__disabled')) {
+            let tagName = tag.querySelector(".list__item__name").innerText;
 
-            GM_notification(
-                { text: `A new tag has appeared 🚀: ${name}` }
-            );
-            found = true;
+            if (!isProcessed(tagName)) {
+                let percent = tag.querySelector("trace-symbol").attributes.successpercent.value ?? 100;
 
-            setStatus(false);
+                GM_notification(
+                    {
+                        text: `Processed tag on ${name}: ${tagName} (${percent}%)`,
+                    }
+                );
+                found = true;
+                setProcessed(tagName);
 
-            break;
+                setStatus(false);
+
+                break;
+            }
+
         }
     }
 
     if (!found) {
-        console.error("no completed tag found. refreshing in 5s.");
+        console.error("no completed tag found. refreshing in 30s.");
         setTimeout(() => {
             window.location.reload();
-        }, 5000);
+        }, 30000);
         return;
     }
 }
