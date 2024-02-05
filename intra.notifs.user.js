@@ -4,7 +4,7 @@
 // @version      0.1
 // @description  try to take over the world!
 // @author       You
-// @match        https://intra.forge.epita.fr/epita-ing-assistants-acu/*
+// @match        https://intra.forge.epita.fr/*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=epita.fr
 // @grant        GM_notification
 // ==/UserScript==
