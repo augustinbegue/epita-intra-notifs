@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Epita Intra NOTIFS
 // @namespace    http://tampermonkey.net/
-// @version      0.1
+// @version      0.2
 // @description  try to take over the world!
 // @author       You
 // @match        https://intra.forge.epita.fr/*
@@ -169,7 +169,7 @@ function watch(resume = false) {
         console.error("no completed tag found. refreshing in 30s.");
         setTimeout(() => {
             window.location.reload();
-        }, 30000);
+        }, 5000);
         return;
     }
 }
