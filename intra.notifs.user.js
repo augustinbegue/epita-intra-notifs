@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Epita Intra NOTIFS
 // @namespace    http://tampermonkey.net/
-// @version      0.2
+// @version      0.3
 // @description  try to take over the world!
 // @author       You
 // @match        https://intra.forge.epita.fr/*
@@ -127,6 +127,7 @@ function watch(resume = false) {
     }
 
     let list = document.querySelector("body > main > div.body > div > div:nth-child(2) > div.list");
+    list.scrollIntoView();
     let name = document.querySelector("body > main > header > h1")?.innerText;
     if (!list) {
         console.error("no tags found. exiting.");
